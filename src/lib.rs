@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+mod pointscards;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// This represents a single spice cube.
 ///
@@ -87,6 +89,19 @@ pub struct SpiceAmount {
     vector: [u8; 4],
 }
 
+#[macro_export]
+macro_rules! spice_amount {
+    ($turmeric:expr, $saffron:expr, $cardamon:expr, $cinnamon:expr) => {
+        SpiceAmount {
+            turmeric: $turmeric,
+            saffron: $saffron,
+            cardamon: $cardamon,
+            cinnamon: $cinnamon,
+            vector: [$turmeric, $saffron, $cardamon, $cinnamon],
+        }
+    };
+}
+
 pub struct SpiceAmountBuilder {
     spice_amount: SpiceAmount,
 }
@@ -129,12 +144,13 @@ impl SpiceAmountBuilder {
 
 impl From<[u8; 4]> for SpiceAmount {
     fn from(spice_array: [u8; 4]) -> SpiceAmount {
-        SpiceAmountBuilder::new()
-            .turmeric(spice_array[0])
-            .saffron(spice_array[1])
-            .cardamon(spice_array[2])
-            .cinnamon(spice_array[3])
-            .build()
+        SpiceAmount {
+            turmeric: spice_array[0],
+            saffron: spice_array[1],
+            cardamon: spice_array[2],
+            cinnamon: spice_array[3],
+            vector: spice_array,
+        }
     }
 }
 impl Into<[u8; 4]> for SpiceAmount {
@@ -282,21 +298,40 @@ pub enum GameErrors {
 }
 
 enum PlayerAction {
-    PlayCard,
-    AcquireCard,
+    PlayCard(ActionCard),
+    AcquireCard(ActionCard),
     Rest,
-    Score,
+    Score(PointsCard),
 }
 
 enum ActionCard {
-    SpiceCard([u8; 4]),
-    ExchangeCard,
+    SpiceCard(SpiceAmount),
+    ExchangeCard(fn(SpiceAmount) -> SpiceAmount),
     UpgradeCard(u8),
 }
 
 struct PointsCard {
     points: u8,
-    spices: [u8; 4],
+    cost: SpiceAmount,
+}
+
+#[macro_export]
+macro_rules! points_card {
+    ($points:expr, [$turmeric:expr, $saffron:expr, $cardamom:expr, $cinnamon:expr]) => {
+        PointsCard {
+            points: $points,
+            cost: spice_amount!($turmeric, $saffron, $cardamom, $cinnamon),
+        }
+    };
+}
+
+struct Player {
+    caravan: Caravan,
+    player_order: u8,
+    hand: Vec<ActionCard>,
+    discard_pile: Vec<ActionCard>,
+    score_pile: Vec<PointsCard>,
+    play_history: Vec<PlayerAction>,
 }
 
 #[cfg(test)]
