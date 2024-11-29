@@ -1,0 +1,15 @@
+[package]
+name = "csr"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "libcsr"
+path = "src/lib.rs"
+
+[[bin]]
+name = "csr"
+path = "src/main.rs"
+
+[dependencies]
+thiserror = "2.0.3"
