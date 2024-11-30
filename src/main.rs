@@ -1,4 +1,5 @@
-use libcsr::{GameErrors, SpiceCube};
+use libcsr::cards::points::POINTS_CARDS;
+use libcsr::{errors::GameErrors, spice::SpiceCube};
 
 fn main() -> Result<(), GameErrors> {
     println!("Initializing the game.");
@@ -14,5 +15,7 @@ fn main() -> Result<(), GameErrors> {
     } else {
         println!("Failed to upgrade cube {sample_cube:?} by {upgrade_steps} step(s).");
     }
+
+    println!("Loading {} point cards.", POINTS_CARDS.len());
     Ok(())
 }

@@ -1,7 +1,25 @@
-use super::PointsCard;
-use super::SpiceAmount;
-use crate::{points_card, spice_amount};
+use crate::cards::PointsCard;
 
+/// A macro to create a `PointsCard`` with a given point value and spice cost.
+///
+/// # Arguments
+///
+/// * `$points` - The point value of the card.
+/// * `[$turmeric, $saffron, $cardamon, $cinnamon]` - The cost of the card.
+macro_rules! points_card {
+    ($points:expr, [$turmeric:expr, $saffron:expr, $cardamon:expr, $cinnamon:expr]) => {
+        PointsCard {
+            points: $points,
+            cost: crate::spice::SpiceAmount {
+                turmeric: $turmeric,
+                saffron: $saffron,
+                cardamon: $cardamon,
+                cinnamon: $cinnamon,
+                vector: [$turmeric, $saffron, $cardamon, $cinnamon],
+            },
+        }
+    };
+}
 pub const POINTS_CARDS: [PointsCard; 36] = [
     points_card!(6, [2, 2, 0, 0]),
     points_card!(7, [3, 2, 0, 0]),
