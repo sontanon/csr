@@ -1,4 +1,5 @@
 use crate::errors::GameErrors;
+use crate::spice_amount;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// This represents a single spice cube.
@@ -79,6 +80,9 @@ impl SpiceCube {
 }
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
+/// Represents an amount of spices.
+///
+/// The vector field contains duplicate information but having the separate fields makes it easier to work with and build amounts to avoid indexing errors.
 pub struct SpiceAmount {
     pub turmeric: u8,
     pub saffron: u8,
@@ -88,26 +92,78 @@ pub struct SpiceAmount {
 }
 
 impl SpiceAmount {
+    /// Check if another `SpiceAmount` is contained within this `SpiceAmount`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use libcsr::{spice_amount, spice::SpiceAmount};
+    /// let spice_amount = spice_amount!(2, 2, 2, 2);
+    /// let other_spice_amount = spice_amount!(1, 1, 1, 1);
+    /// assert!(spice_amount.contains(&other_spice_amount));
+    /// ```
+    ///
+    /// ```
+    /// use libcsr::{spice_amount, spice::SpiceAmount};
+    /// let spice_amount = spice_amount!(2, 2, 2, 2);
+    /// let other_spice_amount = spice_amount!(3, 3, 3, 3);
+    /// assert!(!spice_amount.contains(&other_spice_amount));
+    /// ```
     pub fn contains(&self, other: &SpiceAmount) -> bool {
         self.turmeric >= other.turmeric
             && self.saffron >= other.saffron
             && self.cardamon >= other.cardamon
             && self.cinnamon >= other.cinnamon
     }
-    // pub fn subtract(self, other: &SpiceAmount) -> Result<Self, GameErrors> {
-    //     if !self.contains(other) {
-    //         return Err(GameErrors::CannotSubtractSpiceAmount(self));
-    //     }
 
-    //     Ok(spice_amount!(
-    //         self.turmeric - other.turmeric,
-    //         self.saffron - other.saffron,
-    //         self.cardamon - other.cardamon,
-    //         self.cinnamon - other.cinnamon
-    //     ))
-    // }
+    /// Attempt to subtract an other `SpiceAmount` from this `SpiceAmount`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use libcsr::{spice_amount, spice::SpiceAmount};
+    /// let first_amount = spice_amount!(2, 1, 4, 3);
+    /// let other_amount = spice_amount!(1, 1, 4, 1);
+    /// let result = first_amount.subtract(&other_amount).unwrap();
+    /// let expected_result = spice_amount!(1, 0, 0, 2);
+    /// assert_eq!(result, expected_result);
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns `GameErrors::CannotSubtractSpiceAmount` if the other `SpiceAmount` is not contained within this `SpiceAmount`. Notice that the returned error contains the original `SpiceAmount`.
+    ///
+    ///
+    pub fn subtract(self, other: &SpiceAmount) -> Result<Self, GameErrors> {
+        if !self.contains(other) {
+            let missing = spice_amount!(
+                other.turmeric.saturating_sub(self.turmeric),
+                other.saffron.saturating_sub(self.saffron),
+                other.cardamon.saturating_sub(self.cardamon),
+                other.cinnamon.saturating_sub(self.cinnamon)
+            );
+            return Err(GameErrors::CannotSubtractSpiceAmount(self, missing));
+        }
+
+        Ok(spice_amount!(
+            self.turmeric - other.turmeric,
+            self.saffron - other.saffron,
+            self.cardamon - other.cardamon,
+            self.cinnamon - other.cinnamon
+        ))
+    }
 }
 
+/// A builder for the `SpiceAmount` struct.
+///
+/// # Examples
+///
+/// ```
+/// use libcsr::spice::{SpiceAmount, SpiceAmountBuilder};
+/// let spice_amount = SpiceAmountBuilder::new().turmeric(1).cardamon(3).build();
+/// let expected_spice_amount = SpiceAmount { turmeric: 1, saffron: 0, cardamon: 3, cinnamon: 0, vector: [1, 0, 3, 0] };
+/// assert_eq!(spice_amount, expected_spice_amount);
+/// ```
 pub struct SpiceAmountBuilder {
     spice_amount: SpiceAmount,
 }
@@ -148,6 +204,18 @@ impl SpiceAmountBuilder {
     }
 }
 
+/// Create a `SpiceAmount` from a `[u8; 4]` array.
+///
+/// # Examples
+///
+/// ```
+/// use libcsr::spice::SpiceAmount;
+/// let spice_array = [1, 2, 3, 4];
+/// let spice_amount = SpiceAmount::from(spice_array);
+/// let expected_spice_amount = SpiceAmount { turmeric: 1, saffron: 2, cardamon: 3, cinnamon: 4, vector: [1, 2, 3, 4] };
+/// assert_eq!(spice_amount, expected_spice_amount);
+/// ```
+///  
 impl From<[u8; 4]> for SpiceAmount {
     fn from(spice_array: [u8; 4]) -> Self {
         Self {
@@ -159,36 +227,20 @@ impl From<[u8; 4]> for SpiceAmount {
         }
     }
 }
+
+/// Convert a `SpiceAmount` into a `[u8; 4]` array.
+///
+/// # Examples
+///
+/// ```
+/// use libcsr::spice::SpiceAmount;
+/// let spice_amount = SpiceAmount { turmeric: 1, saffron: 2, cardamon: 3, cinnamon: 4, vector: [1, 2, 3, 4] };
+/// let spice_array: [u8; 4] = spice_amount.into();
+/// let expected_spice_array = [1, 2, 3, 4];
+/// assert_eq!(spice_array, expected_spice_array);
+/// ```
 impl Into<[u8; 4]> for SpiceAmount {
     fn into(self) -> [u8; 4] {
         self.vector
     }
-}
-
-#[macro_export]
-/// A macro to create a `SpiceAmount` struct with the given amounts of spices.
-///
-/// # Arguments
-///
-/// * `$turmeric` - The amount of turmeric.
-/// * `$saffron` - The amount of saffron.
-/// * `$cardamon` - The amount of cardamon.
-/// * `$cinnamon` - The amount of cinnamon.
-///
-/// # Examples
-/// ```
-/// use libcsr::{spice_amount, spice::SpiceAmount};
-/// let spice_amount = spice_amount!(1, 2, 3, 4);
-/// assert_eq!(spice_amount, SpiceAmount { turmeric: 1, saffron: 2, cardamon: 3, cinnamon: 4, vector: [1, 2, 3, 4] });
-/// ```
-macro_rules! spice_amount {
-    ($turmeric:expr, $saffron:expr, $cardamon:expr, $cinnamon:expr) => {
-        SpiceAmount {
-            turmeric: $turmeric,
-            saffron: $saffron,
-            cardamon: $cardamon,
-            cinnamon: $cinnamon,
-            vector: [$turmeric, $saffron, $cardamon, $cinnamon],
-        }
-    };
 }

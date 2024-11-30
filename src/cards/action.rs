@@ -1,5 +1,4 @@
 use super::ActionCard;
-use super::SpiceAmount;
 use crate::spice_amount;
 
 pub const STARTING_ACTION_CARDS: [ActionCard; 2] = [

@@ -14,7 +14,7 @@ pub enum GameErrors {
     MaxSpiceCapacityReached,
 
     #[error("Cannot subtract spice amount from another spice amount")]
-    CannotSubtractSpiceAmount(SpiceAmount),
+    CannotSubtractSpiceAmount(SpiceAmount, SpiceAmount),
 
     #[error("Internal logic error occurred")]
     InternalLogicError,

@@ -133,6 +133,12 @@ enum PlayerAction {
     Score(PointsCard),
 }
 
+impl PlayerAction {
+    fn play(&self) -> Result<(), GameErrors> {
+        todo!()
+    }
+}
+
 struct Player {
     caravan: Caravan,
     player_order: u8,
@@ -140,4 +146,10 @@ struct Player {
     discard_pile: Vec<ActionCard>,
     score_pile: Vec<PointsCard>,
     play_history: Vec<PlayerAction>,
+}
+
+impl Player {
+    fn new() -> Self {
+        todo!()
+    }
 }

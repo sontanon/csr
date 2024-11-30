@@ -1,5 +1,6 @@
 pub mod cards;
 pub mod errors;
+pub mod macros;
 pub mod player;
 pub mod spice;
 
