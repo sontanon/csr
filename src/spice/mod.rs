@@ -116,7 +116,7 @@ impl SpiceAmount {
             && self.cinnamon >= other.cinnamon
     }
 
-    /// Attempt to subtract an other `SpiceAmount` from this `SpiceAmount`.
+    /// Attempt to subtract another `SpiceAmount` from this `SpiceAmount`.
     ///
     /// # Examples
     ///
