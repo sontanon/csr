@@ -39,4 +39,22 @@ mod tests {
         let result = card.purchase(&spice_amount);
         assert_eq!(result, Ok((11, spice_amount!(1, 2, 1, 0))));
     }
+
+    #[test]
+    fn test_purchase_failure() {
+        let card = PointsCard {
+            points: 11,
+            cost: spice_amount!(3, 0, 0, 2),
+        };
+
+        let spice_amount = spice_amount!(2, 2, 1, 1);
+        let result = card.purchase(&spice_amount);
+        assert_eq!(
+            result,
+            Err(GameErrors::CannotSubtractSpiceAmount(
+                spice_amount,
+                spice_amount!(1, 0, 0, 1)
+            ))
+        );
+    }
 }

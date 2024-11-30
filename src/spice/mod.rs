@@ -131,6 +131,15 @@ impl SpiceAmount {
     ///
     /// # Errors
     ///
+    /// ```
+    /// use libcsr::{spice_amount, spice::SpiceAmount, errors::GameErrors};
+    /// let first_amount = spice_amount!(2, 1, 4, 3);
+    /// let other_amount = spice_amount!(3, 2, 4, 0);
+    /// let missing_amount = spice_amount!(1, 1, 0, 0);
+    /// let result = first_amount.subtract(&other_amount);
+    /// assert_eq!(result, Err(GameErrors::CannotSubtractSpiceAmount(first_amount, missing_amount)));
+    /// ```
+    ///
     /// Returns `GameErrors::CannotSubtractSpiceAmount` if the other `SpiceAmount` is not contained within this `SpiceAmount`. Notice that the returned error contains the original `SpiceAmount`.
     ///
     ///
