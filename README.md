@@ -23,7 +23,7 @@ This project is a fan-made implementation and is intended for educational purpos
 To run the project, ensure you have Rust installed. Clone the repository and use `cargo` to build and run the project:
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/sontanon/csr.git
 cd csr
 cargo run
 ```
