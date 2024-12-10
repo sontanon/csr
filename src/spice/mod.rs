@@ -115,6 +115,27 @@ impl SpiceAmount {
             && self.cardamon >= other.cardamon
             && self.cinnamon >= other.cinnamon
     }
+    
+    /// Adds another `SpiceAmount` to this `SpiceAmount`.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use libcsr::{spice_amount, spice::SpiceAmount};
+    /// let first_amount = spice_amount!(2, 1, 4, 3);
+    /// let other_amount = spice_amount!(1, 1, 4, 1);
+    /// let result = first_amount.add(&other_amount);
+    /// let expected_result = spice_amount!(3, 2, 8, 4);
+    /// assert_eq!(result, expected_result);
+    /// ```
+    pub fn add(&self, other: &SpiceAmount) -> SpiceAmount {
+        spice_amount!(
+            self.turmeric + other.turmeric,
+            self.saffron + other.saffron,
+            self.cardamon + other.cardamon,
+            self.cinnamon + other.cinnamon
+        )
+    }
 
     /// Attempt to subtract another `SpiceAmount` from this `SpiceAmount`.
     ///
@@ -173,6 +194,7 @@ impl SpiceAmount {
 /// let expected_spice_amount = SpiceAmount { turmeric: 1, saffron: 0, cardamon: 3, cinnamon: 0, vector: [1, 0, 3, 0] };
 /// assert_eq!(spice_amount, expected_spice_amount);
 /// ```
+#[derive(Default)]
 pub struct SpiceAmountBuilder {
     spice_amount: SpiceAmount,
 }
@@ -248,8 +270,8 @@ impl From<[u8; 4]> for SpiceAmount {
 /// let expected_spice_array = [1, 2, 3, 4];
 /// assert_eq!(spice_array, expected_spice_array);
 /// ```
-impl Into<[u8; 4]> for SpiceAmount {
-    fn into(self) -> [u8; 4] {
-        self.vector
+impl From<SpiceAmount> for [u8; 4] {
+    fn from(spice_amount: SpiceAmount) -> [u8; 4] {
+        spice_amount.vector
     }
 }

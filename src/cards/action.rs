@@ -7,7 +7,7 @@ pub const STARTING_ACTION_CARDS: [ActionCard; 2] = [
     ActionCard::Upgrade(2),
 ];
 
-pub const PURCHASEABLE_ACTION_CARDS: [ActionCard; 9] = [
+pub const PURCHASABLE_ACTION_CARDS: [ActionCard; 9] = [
     // Spice cards.
     ActionCard::Gain(spice_amount!(3, 0, 0, 0)),
     ActionCard::Gain(spice_amount!(4, 0, 0, 0)),
